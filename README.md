@@ -7,7 +7,7 @@ The core of this project is to deploy a multi-service e-commerce platform (web, 
 
 ## 👥 Team & Acknowledgments
 
-* **🎓 Instructor:** Abobakr Yousre
+* **🎓 Instructor:** Mohamed Rahim
 
 ### 👥 Team Members:
 - **Mohammed Wael Badr**
