@@ -1,0 +1,21 @@
+{
+  "name": "hexa-exotics-backend",
+  "version": "1.0.0",
+  "description": "HEXA XOTICS - Microservices Backend Suite",
+  "scripts": {
+    "start": "node start-all.js",
+    "dev": "node start-all.js",
+    "install:all": "npm --prefix user-service install && npm --prefix catalog-service install && npm --prefix search-service install && npm --prefix payment-service install",
+    "user-service": "node user-service/src/server.js",
+    "catalog-service": "node catalog-service/src/server.js",
+    "search-service": "node search-service/src/server.js",
+    "payment-service": "node payment-service/src/server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "multer": "^1.4.5-lts.1",
+    "nodemailer": "^7.0.11",
+    "sqlite3": "^5.1.7"
+  }
+}
