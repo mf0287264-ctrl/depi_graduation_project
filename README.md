@@ -55,6 +55,80 @@ The core of this project is to deploy a multi-service e-commerce platform (web, 
 
 ---
 
+## 🏗️ Architecture & Containerization Setup
+
+The platform is designed around a multi-service containerized architecture orchestrated via **Docker Compose** and fronted by an **Nginx Reverse Proxy**:
+
+```
+                          ┌────────────────────────┐
+                          │     Client / Browser   │
+                          └───────────┬────────────┘
+                                      │ Port 80
+                                      ▼
+                      ┌────────────────────────────────┐
+                      │    Nginx Reverse Proxy (Port 80)│
+                      └───────┬──────────────┬─────────┘
+                              │              │
+             ┌────────────────┘              └────────────────────────┐
+             │ Path: /                                                 │ Path: /api/*
+             ▼                                                         ▼
+  ┌──────────────────────┐                     ┌───────────────────────────────────────────────┐
+  │   React / Vite UI    │                     │              Backend Microservices            │
+  │  (frontend container)│                     │                                               │
+  └──────────────────────┘                     │  • /api/user-service/    ──▶ user-service:4001 │
+                                               │  • /api/catalog-service/ ──▶ catalog-service:4002│
+                                               │  • /api/search-service/  ──▶ search-service:4003 │
+                                               │  • /api/payment-service/ ──▶ payment-service:4004│
+                                               └───────────────────────┬───────────────────────┘
+                                                                       │ Shared Volume
+                                                                       ▼
+                                                           ┌──────────────────────┐
+                                                           │    hexaxotics.db     │
+                                                           │   (SQLite Database)  │
+                                                           └──────────────────────┘
+```
+
+### Key Components Added:
+1. **Docker Compose (`docker-compose.yml`)**:
+   - Manages and links all services together in a private bridge network (`hexa-network`).
+   - Configures persistent storage for the shared database (`hexaxotics.db`).
+   - Sets environment configurations, health restart policies (`unless-stopped`), and service dependencies.
+2. **Nginx Reverse Proxy (`nginx/nginx.conf`)**:
+   - Acts as the unified gateway on port `80`.
+   - Routes frontend traffic and proxies microservice APIs to avoid CORS issues and eliminate port proliferation.
+   - Configured with `client_max_body_size 10M` for handling media/avatar uploads seamlessly.
+3. **Frontend Production Build Integration (`frontend/Dockerfile`)**:
+   - Multi-stage Docker build utilizing Node.js for building Vite assets and Nginx for serving production bundles.
+   - Build arguments (`VITE_*_SERVICE_URL`) injected at build time to direct client-side API requests to Nginx reverse proxy routes.
+
+---
+
+## 🚀 Running the Project Locally with Docker
+
+### Prerequisites
+- [Docker](https://www.docker.com/) & Docker Compose installed.
+
+### 1. Build and Run All Services
+From the root directory, start the entire stack:
+```bash
+docker compose up --build -d
+```
+
+### 2. Access the Application
+- **Web Application:** `http://localhost`
+- **Reverse Proxy Routing:**
+  - User Service: `http://localhost/api/user-service/`
+  - Catalog Service: `http://localhost/api/catalog-service/`
+  - Search Service: `http://localhost/api/search-service/`
+  - Payment Service: `http://localhost/api/payment-service/`
+
+### 3. Stop the Containers
+```bash
+docker compose down
+```
+
+---
+
 ## 🤝 Team Collaboration Workflow
 
 ### 1. Branching Strategy

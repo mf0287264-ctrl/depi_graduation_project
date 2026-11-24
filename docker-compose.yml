@@ -1,0 +1,81 @@
+services:
+  nginx:
+    image: nginx:alpine
+    container_name: hexa-nginx-proxy
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - frontend
+      - user-service
+      - catalog-service
+      - search-service
+      - payment-service
+    networks:
+      - hexa-network
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    image: hexa-frontend:v1
+    container_name: hexa-frontend
+    networks:
+      - hexa-network
+    restart: unless-stopped
+
+  user-service:
+    build: ./backend/user-service
+    image: hexa-user:v1
+    container_name: hexa-user-service
+    environment:
+      - PORT=4001
+      - DB_PATH=/data/hexaxotics.db
+    volumes:
+      - ./hexaxotics.db:/data/hexaxotics.db
+    networks:
+      - hexa-network
+    restart: unless-stopped
+
+  catalog-service:
+    build: ./backend/catalog-service
+    image: hexa-catalog:v1
+    container_name: hexa-catalog-service
+    environment:
+      - PORT=4002
+      - DB_PATH=/data/hexaxotics.db
+    volumes:
+      - ./hexaxotics.db:/data/hexaxotics.db
+    networks:
+      - hexa-network
+    restart: unless-stopped
+
+  search-service:
+    build: ./backend/search-service
+    image: hexa-search:v1
+    container_name: hexa-search-service
+    environment:
+      - PORT=4003
+      - DB_PATH=/data/hexaxotics.db
+    volumes:
+      - ./hexaxotics.db:/data/hexaxotics.db
+    networks:
+      - hexa-network
+    restart: unless-stopped
+
+  payment-service:
+    build: ./backend/payment-service
+    image: hexa-payment:v1
+    container_name: hexa-payment-service
+    environment:
+      - PORT=4004
+      - DB_PATH=/data/hexaxotics.db
+    volumes:
+      - ./hexaxotics.db:/data/hexaxotics.db
+    networks:
+      - hexa-network
+    restart: unless-stopped
+
+networks:
+  hexa-network:
+    driver: bridge
